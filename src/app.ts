@@ -1,4 +1,5 @@
 import fastify from "fastify";
+import fs from "fs";
 
 import fastifyAuth from "@fastify/auth"
 import cors from "@fastify/cors"
@@ -41,7 +42,19 @@ export default async function start(){
         app.addHook("preHandler", app.auth([app.authToken]))
     })
 
+    app.get
+    <{Params: {path: string}}>
+    ("/static/:path", async (req, res)=>{
+      const stream = fs.createReadStream("./static/" + req.params.path);
+      stream.on("error", (error) => {
+        console.error(`Error reading file: ${error}`);
+        res.status(500).send("Internal Server Error");
+      });
+      return res.send(stream)
+    })
+
     app.register(require("./controllers/auth"), { prefix: "/auth" })
+    app.register(require("./controllers/inventory"), { prefix: "/inventory" })
 
     try {
         log.info(`listen to ${port}`)
@@ -50,6 +63,7 @@ export default async function start(){
           host: '0.0.0.0'
         })
         con_sql.sync()
+        // con_sql.sync({force: true})
     } catch (err) {
         app.log.error(err)
         process.exit(1)

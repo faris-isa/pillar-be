@@ -26,7 +26,8 @@
     "pg": "^8.11.0",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.32.0",
-    "sequelize-typescript": "^2.1.5"
+    "sequelize-typescript": "^2.1.5",
+    "uuidv4": "^6.2.13"
   },
   "devDependencies": {
     "@types/cookie": "^0.5.1",

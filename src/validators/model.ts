@@ -1,22 +1,39 @@
 import { wrap } from "./validatorWrapper";
 export { wrap }
 
-export const account = {
+export const inventory = {
     type: "object",
     additionalProperties: false,
     properties: {
-        username: {type: "string"},
-        password: {type: "string"},
-        is_active: {type: "string"},
-        roles: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-                name: {type: "string"},
-                is_active: {stype: "string"}
-            },
-            required: ['name', 'is_active']
+        kode_barang: {type: "string"},
+        serial_number: {
+            type: "array",
+            items : {
+                type: "object",
+                properties: {
+                    serial_number: {type: "string"}
+                },
+                required: ["serial_number"]
+            }
         }
     },
-    required: ["username", "password"]
+    required: ["kode_barang", "serial_number"]
+} as const;
+
+export const inventoryDetail = {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+        serial_number: {
+            type: "array",
+            items : {
+                type: "object",
+                properties: {
+                    serial_number: {type: "string"}
+                },
+                required: ["serial_number"]
+            }
+        }
+    },
+    required: ["serial_number"]
 } as const;

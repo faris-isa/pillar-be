@@ -1,11 +1,11 @@
 import { Sequelize } from 'sequelize-typescript';
+import { Accounts } from './accounts';
+import { Inventory } from './inventory';
+import { InventoryDetails } from './inventory_details';
+import { databases } from "../../config.json";
 
-const config = require("../../config.json");
-// const connection = new Sequelize(databases.prod.path, {
-//   models: [Roles, Accounts, Providers, AccountProvider, Busses, BusDetails, BusProvider, BusMaintenance, AccountRole, Spareparts, SparepartParams, BusSparepart, BusSparepartDetail, LogMaintenance, LogSparepart]
-// });
-const connection = new Sequelize(config.databases.path, {
-  models: []
+const connection = new Sequelize(databases.path, {
+  models: [Accounts, Inventory, InventoryDetails]
 });
 
 export default connection;
