@@ -1,0 +1,7 @@
+{
+    "secretKey" : "pillartest",
+    "corsList" : ["http://localhost:5173", "*"],
+    "databases": {
+        "path": "postgres://postgres:admin123@localhost:5432/pillar"
+    }
+}
