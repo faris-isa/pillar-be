@@ -16,17 +16,16 @@ module.exports = async (app: FastifyInstance) => {
             return null
         });
         if(!data) return res.format([], 401, "Unauthorized", "Invalid credentials")
-        if(!data.is_active) return res.format([], 403, "Forbidden", "Account Inactive")
         if(data.deleted_at !== null) return res.format([], 403, "Forbidden", "Account Deleted")
         let token = await app.jwt.sign({id: data.id, exp : Date.now() + 3_600_000})
-        let redirect: string = '/';
+        let redirect: string = '/app';
         res.setCookie("token", token, {
             path: "/"
         }).format({token, redirect})
     })
 
     app.get("/check", async (req, res)=>{
-        // res.format(req.account)
+        res.format(req.account)
     });
 
 }

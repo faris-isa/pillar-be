@@ -1,12 +1,8 @@
 import fastifyPlugin from 'fastify-plugin'
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import cookie from "cookie"
-
-import { login, wrap} from "../validators/auth"
-import {createHmac} from "crypto"
-
-import { FromSchema } from "json-schema-to-ts";
 import { RequestOptions, get } from 'http';
+import { Accounts } from '../models/accounts';
 
 
 module.exports = fastifyPlugin((app: FastifyInstance, opt: FastifyPluginOptions, done: Function) => {
@@ -40,7 +36,8 @@ module.exports = fastifyPlugin((app: FastifyInstance, opt: FastifyPluginOptions,
             req.url.match(/^\/test/) || 
             req.url.match(/^\/auth\/login$/) || 
             req.url.match(/^\/auth\/register$/) || 
-            req.url == "/favicon.ico"
+            req.url == "/favicon.ico" ||
+            req.url.startsWith("/static")
         ) return;
 
         let token = ""  
@@ -59,11 +56,14 @@ module.exports = fastifyPlugin((app: FastifyInstance, opt: FastifyPluginOptions,
         
         //@ts-ignore
         if(token.exp < Date.now()) throw new Error("Token expired")
-        //@ts-ignore
-        let dataUser = await DBAccounts().readOneById(token.id)
+        let dataUser: any = await Accounts.findOne({
+            // @ts-ignore
+            where : {id: token.id}, 
+            attributes: ['id', 'username', 'is_admin', 'deleted_at']
+        })
         if(!dataUser) throw new Error("User Not Found")
-        dataUser.id_operational = String(dataUser.id_operational)
-        //@ts-ignore
+        if(!dataUser.is_admin) throw new Error("User Suspended")
+        if(dataUser.deleted_at !== null) throw new Error("User Deleted")
         req.account = dataUser
     })
 

@@ -19,7 +19,7 @@ class Accounts extends Model {
     password!: string;
     
     @Column
-    is_role!: boolean;
+    is_admin!: boolean;
 
     @CreatedAt
     created_at!: Date;
