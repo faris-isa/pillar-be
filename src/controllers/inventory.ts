@@ -57,9 +57,9 @@ module.exports = async (app: FastifyInstance) => {
         res.format({inv, detailsAdded})
     })
 
-    app.post<{Params: {kd: string}, Body: FromSchema<typeof inventoryDetail>}>
-    ("/serial/:kd", wrap(inventoryDetail), async (req, res)=>{
-        const kd = req.params.kd;
+    app.post<{Body: FromSchema<typeof inventory>}>
+    ("/serial", wrap(inventory), async (req, res)=>{
+        const kd = req.body.kode_barang;
         let allInventory: any = await Inventory.findOne({
             where: {
                 "kode_barang": kd,
@@ -77,7 +77,7 @@ module.exports = async (app: FastifyInstance) => {
             })
             detailsAdded.push(details)
         }
-        res.format({detailsAdded})
+        res.format(detailsAdded)
     })
 
     app.post<{Body: FromSchema<typeof outItem>}>
@@ -96,6 +96,46 @@ module.exports = async (app: FastifyInstance) => {
             "out_date" : Date.now()
         })
         res.format(searchFirst)
+    })
+
+    app.post<{Body: FromSchema<typeof outItem>}>
+    ("/lifo", wrap(outItem),async (req, res)=>{
+        const searchFirst = await InventoryDetails.findOne({
+            where: {
+                "kode_barang": req.body.kode_barang,
+            },
+            order: [
+                ['created_at', 'DESC']
+            ],
+            limit: 1
+        })
+        if(!searchFirst) return res.format([], 404, "Not Found", "Not Found")
+        searchFirst.update({
+            "out_date" : Date.now()
+        })
+        res.format(searchFirst)
+    })
+
+    app.post<{Body: FromSchema<typeof inventory>}>
+    ("/delSerial", wrap(inventory),async (req, res)=>{
+        const searchFirst = await InventoryDetails.findOne({
+            where: {
+                "kode_barang": req.body.kode_barang,
+            },
+            order: [
+                ['created_at', 'ASC']
+            ],
+            limit: 1
+        })
+
+        const destroy = await InventoryDetails.destroy({
+            where: {
+                "kode_barang" : req.body.kode_barang,
+                "serial_number": req.body.serial_number
+            }
+        })
+        // if(!destroy) return res.format([], 404, "Not Found", "Failed")
+        res.format({searchFirst})
 
     })
 
