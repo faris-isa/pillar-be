@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 import { FromSchema } from "json-schema-to-ts";
 import { Inventory } from "../models/inventory";
 import { Op } from "sequelize";
-import { inventory, inventoryDetail } from "../validators/model";
+import { inventory, inventoryDetail, outItem } from "../validators/model";
 import { InventoryDetails } from "../models/inventory_details";
 
 module.exports = async (app: FastifyInstance) => {
@@ -21,9 +21,15 @@ module.exports = async (app: FastifyInstance) => {
     app.get("/detail", async (req, res)=>{
         let allInventory: Inventory[] = await Inventory.findAll({
             where: {
-                "deleted_at": null,
+                "deleted_at": null
             },
-            include: [InventoryDetails]
+            include: [{
+                model: InventoryDetails,
+                where: {
+                    "out_date": null,
+                },
+                required: false
+            }]
         })
         res.format(allInventory);
     })
@@ -72,6 +78,25 @@ module.exports = async (app: FastifyInstance) => {
             detailsAdded.push(details)
         }
         res.format({detailsAdded})
+    })
+
+    app.post<{Body: FromSchema<typeof outItem>}>
+    ("/fifo", wrap(outItem),async (req, res)=>{
+        const searchFirst = await InventoryDetails.findOne({
+            where: {
+                "kode_barang": req.body.kode_barang,
+            },
+            order: [
+                ['created_at', 'ASC']
+            ],
+            limit: 1
+        })
+        if(!searchFirst) return res.format([], 404, "Not Found", "Not Found")
+        searchFirst.update({
+            "out_date" : Date.now()
+        })
+        res.format(searchFirst)
+
     })
 
 }

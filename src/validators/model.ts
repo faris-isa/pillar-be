@@ -37,3 +37,12 @@ export const inventoryDetail = {
     },
     required: ["serial_number"]
 } as const;
+
+export const outItem = {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+        kode_barang: { type: "string"}
+    },
+    required: ["kode_barang"]
+} as const;

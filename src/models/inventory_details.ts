@@ -28,6 +28,9 @@ export class InventoryDetails extends Model {
     @DeletedAt
     deleted_at!: Date;
 
+    @Column
+    out_date!: Date;
+
     @BelongsTo(() => Inventory, 'kode_barang')
     barang!: Inventory;
 }
